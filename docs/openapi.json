@@ -1,11 +1,11 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "xiaosi 插件库 XPI",
+    "title": "XiaoSi插件库 XPI",
     "version": "1.1.0",
     "description": "面向 Tianshu 4.0 的 XPI v1 插件开发、授权、发行、更新与云端工具接口。具体签名字节与准入规则见开发者手册。",
     "contact": {
-      "name": "xiaosi 插件库开发者手册",
+      "name": "XiaoSi插件库开发者手册",
       "url": "https://xiaosiai.cn/docs/developers"
     }
   },
