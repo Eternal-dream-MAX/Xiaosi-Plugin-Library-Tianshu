@@ -1,0 +1,5199 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "xiaosi 插件库 XPI",
+    "version": "1.1.0",
+    "description": "面向 Tianshu 4.0 的 XPI v1 插件开发、授权、发行、更新与云端工具接口。具体签名字节与准入规则见开发者手册。",
+    "contact": {
+      "name": "xiaosi 插件库开发者手册",
+      "url": "https://xiaosiai.cn/docs/developers"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "账户注册",
+        "operationId": "post_auth_register",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "csrf": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "csrf"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "登录",
+        "operationId": "post_auth_login",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "csrf": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "csrf"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "summary": "读取浏览器会话",
+        "operationId": "get_auth_session",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "csrf": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "csrf"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "type": "null"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "退出登录",
+        "operationId": "post_auth_logout",
+        "responses": {
+          "204": {
+            "description": "成功"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/meta": {
+      "get": {
+        "summary": "XPI 服务能力",
+        "operationId": "get_meta",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocol": {
+                      "const": "xpi/1"
+                    },
+                    "payment_mode": {
+                      "enum": [
+                        "disabled",
+                        "sandbox"
+                      ]
+                    },
+                    "site_name": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "capabilities": {
+                      "type": "object",
+                      "properties": {
+                        "cloud_checks": {
+                          "type": "boolean"
+                        },
+                        "paid_execution": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "cloud_checks",
+                        "paid_execution"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "protocol",
+                    "payment_mode",
+                    "site_name",
+                    "state",
+                    "capabilities"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugins": {
+      "get": {
+        "summary": "检索单一插件分区",
+        "operationId": "get_plugins",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plugins": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Plugin"
+                      }
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "plugins",
+                    "next_cursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "目录未变化"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "admission_class",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "official_reviewed",
+                "paid_unreviewed"
+              ],
+              "default": "official_reviewed"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      }
+    },
+    "/plugins/{id}/releases": {
+      "get": {
+        "summary": "读取单一分区内的版本历史",
+        "operationId": "get_plugins_id_releases",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plugin": {
+                      "$ref": "#/components/schemas/Plugin"
+                    },
+                    "releases": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Plugin"
+                      }
+                    }
+                  },
+                  "required": [
+                    "plugin",
+                    "releases"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "admission_class",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "official_reviewed",
+                "paid_unreviewed"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/me/applications": {
+      "get": {
+        "summary": "查看本人申请",
+        "operationId": "get_me_applications",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "applications": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Application"
+                      }
+                    }
+                  },
+                  "required": [
+                    "applications"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ]
+      }
+    },
+    "/applications": {
+      "post": {
+        "summary": "提交个人使用申请",
+        "operationId": "post_applications",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "application": {
+                      "$ref": "#/components/schemas/Application"
+                    }
+                  },
+                  "required": [
+                    "application"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "purpose": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "purpose"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/entitlements": {
+      "get": {
+        "summary": "查看本人使用资格",
+        "operationId": "get_me_entitlements",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "entitlements": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Entitlement"
+                      }
+                    }
+                  },
+                  "required": [
+                    "entitlements"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "也接受设备会话，设备会话带 X-XPI-Challenge 和 X-XPI-Signature。",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "deviceBearer": []
+          }
+        ]
+      }
+    },
+    "/me/activation-keys": {
+      "post": {
+        "summary": "领取或轮换激活密钥",
+        "operationId": "post_me_activation_keys",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "activation_key": {
+                      "type": "string"
+                    },
+                    "activation_key_hint": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "activation_key",
+                    "activation_key_hint"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "entitlement_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "entitlement_id",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/devices": {
+      "get": {
+        "summary": "查看本人设备",
+        "operationId": "get_me_devices",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "devices": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Device"
+                      }
+                    }
+                  },
+                  "required": [
+                    "devices"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ]
+      }
+    },
+    "/me/devices/{id}": {
+      "delete": {
+        "summary": "撤销本人设备",
+        "operationId": "delete_me_devices_id",
+        "responses": {
+          "204": {
+            "description": "成功"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/challenges": {
+      "post": {
+        "summary": "申请单次设备挑战",
+        "operationId": "post_auth_challenges",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Challenge"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "purpose": {
+                    "enum": [
+                      "activate",
+                      "refresh",
+                      "device"
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "purpose",
+                  "public_key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activations": {
+      "post": {
+        "summary": "证明设备持有并激活",
+        "operationId": "post_activations",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceSession"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "activation_key": {
+                    "type": "string"
+                  },
+                  "device_name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "activation_key",
+                  "device_name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tokens/refresh": {
+      "post": {
+        "summary": "旋转刷新凭据",
+        "operationId": "post_tokens_refresh",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceSession"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "refresh_token"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/install-plans": {
+      "post": {
+        "summary": "创建绑定精确版本的安装计划",
+        "operationId": "post_install_plans",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plugin_id": {
+                    "type": "string"
+                  },
+                  "channel": {
+                    "const": "stable"
+                  },
+                  "admission_class": {
+                    "type": "string",
+                    "enum": [
+                      "official_reviewed",
+                      "paid_unreviewed"
+                    ]
+                  },
+                  "installed_version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "host": {
+                    "$ref": "#/components/schemas/Host"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "plugin_id",
+                  "channel",
+                  "installed_version",
+                  "host"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/download-tickets": {
+      "post": {
+        "summary": "确认计划并签发下载票据",
+        "operationId": "post_download_tickets",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ticket": {
+                      "type": "string"
+                    },
+                    "download_path": {
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "ticket",
+                    "download_path",
+                    "expires_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plan_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "plan_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "confirmed": {
+                    "const": true
+                  },
+                  "paid_confirmed": {
+                    "type": "boolean"
+                  },
+                  "automatic": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "plan_id",
+                  "plan_digest",
+                  "confirmed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/downloads/{id}": {
+      "get": {
+        "summary": "下载该设备已确认的包",
+        "operationId": "get_downloads_id",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Download-Ticket",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/updates/check": {
+      "post": {
+        "summary": "按分区批量核验与检查更新",
+        "operationId": "post_updates_check",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "updates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "plugin_id": {
+                            "type": "string"
+                          },
+                          "admission_class": {
+                            "type": "string",
+                            "enum": [
+                              "official_reviewed",
+                              "paid_unreviewed"
+                            ]
+                          },
+                          "status": {
+                            "enum": [
+                              "current",
+                              "update",
+                              "revoked",
+                              "unavailable"
+                            ]
+                          },
+                          "version": {
+                            "type": "string"
+                          },
+                          "release_id": {
+                            "type": "string"
+                          },
+                          "requires_confirmation": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "plugin_id",
+                          "admission_class",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "updates"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "host": {
+                    "$ref": "#/components/schemas/Host"
+                  },
+                  "installed": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "plugin_id": {
+                          "type": "string"
+                        },
+                        "channel": {
+                          "const": "stable"
+                        },
+                        "admission_class": {
+                          "type": "string",
+                          "enum": [
+                            "official_reviewed",
+                            "paid_unreviewed"
+                          ]
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "release_id": {
+                          "type": "string"
+                        },
+                        "pinned_version": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "plugin_id",
+                        "channel",
+                        "admission_class",
+                        "version",
+                        "release_id"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "host",
+                  "installed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client-events": {
+      "post": {
+        "summary": "提交最少量的安装结果",
+        "operationId": "post_client_events",
+        "responses": {
+          "204": {
+            "description": "成功"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "event": {
+                    "enum": [
+                      "install",
+                      "update",
+                      "rollback"
+                    ]
+                  },
+                  "outcome": {
+                    "enum": [
+                      "success",
+                      "failed",
+                      "cancelled"
+                    ]
+                  }
+                },
+                "required": [
+                  "event",
+                  "outcome"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metadata/{name}": {
+      "get": {
+        "summary": "读取签名 TUF 元数据",
+        "operationId": "get_metadata_name",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "元数据未变化"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/me/submissions": {
+      "get": {
+        "summary": "列出本人提交版本",
+        "operationId": "get_me_submissions",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "submissions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OwnSubmission"
+                      }
+                    }
+                  },
+                  "required": [
+                    "submissions"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ]
+      }
+    },
+    "/submissions": {
+      "post": {
+        "summary": "提交固定 ZIP 产物",
+        "operationId": "post_submissions",
+        "responses": {
+          "200": {
+            "description": "返回既有提交",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "submission": {
+                      "$ref": "#/components/schemas/Submission"
+                    }
+                  },
+                  "required": [
+                    "submission"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "submission": {
+                      "$ref": "#/components/schemas/Submission"
+                    }
+                  },
+                  "required": [
+                    "submission"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "浏览器使用同源会话。CI 需要 releases:submit 且匹配插件和分区，既有 XSPUB1 只限其付费范围。相同产物与提交元数据的重试返回原记录。",
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          },
+          {
+            "developerCi": []
+          },
+          {
+            "publisherBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "admission_class",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "official_reviewed",
+                "paid_unreviewed"
+              ]
+            }
+          },
+          {
+            "name": "license",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "data_use",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source_url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "release_notes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/zip": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/publisher-grants": {
+      "get": {
+        "summary": "查看本人发布资格",
+        "operationId": "get_me_publisher_grants",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grants": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Grant"
+                      }
+                    }
+                  },
+                  "required": [
+                    "grants"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ]
+      }
+    },
+    "/me/publisher-grants/{id}/keys": {
+      "post": {
+        "summary": "领取或轮换发布凭据",
+        "operationId": "post_me_publisher_grants_id_keys",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publisher_key": {
+                      "type": "string"
+                    },
+                    "publisher_key_hint": {
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "publisher_key",
+                    "publisher_key_hint",
+                    "expires_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/publisher-orders": {
+      "get": {
+        "summary": "列出订单",
+        "operationId": "get_publisher_orders",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Order"
+                      }
+                    }
+                  },
+                  "required": [
+                    "orders"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "创建服务器报价订单",
+        "operationId": "post_publisher_orders",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "order"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "order"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "release_id": {
+                    "type": "string"
+                  },
+                  "accept_unreviewed": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "release_id",
+                  "accept_unreviewed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/publisher-orders/{id}": {
+      "get": {
+        "summary": "查看本人订单",
+        "operationId": "get_publisher_orders_id",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "order"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/publisher-orders/{id}/sandbox-pay": {
+      "post": {
+        "summary": "沙盒模拟结账",
+        "operationId": "post_publisher_orders_id_sandbox_pay",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "order"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/cloud/plugins/{id}/tools": {
+      "get": {
+        "summary": "查看平台巡检工具",
+        "operationId": "get_cloud_plugins_id_tools",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudTools"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/cloud/executions": {
+      "post": {
+        "summary": "提交已登记的 HTTPS 巡检",
+        "operationId": "post_cloud_executions",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudExecution"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudExecution"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plugin_id": {
+                    "const": "xiaosi-api-watch"
+                  },
+                  "tool": {
+                    "const": "check_registered_endpoint"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "endpoint_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "endpoint_id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "idempotency_key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "plugin_id",
+                  "tool",
+                  "version",
+                  "input",
+                  "idempotency_key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "列出本人云端任务",
+        "operationId": "get_cloud_executions",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "executions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CloudExecution"
+                      }
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "executions",
+                    "next_cursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "queued",
+                "running",
+                "succeeded",
+                "failed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/cloud/executions/{id}": {
+      "get": {
+        "summary": "读取本人巡检状态",
+        "operationId": "get_cloud_executions_id",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudExecution"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "取消本人巡检",
+        "operationId": "delete_cloud_executions_id",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudExecution"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "读取 XPI OpenAPI 3.1 契约",
+        "operationId": "get_openapi_json",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tianshu/capabilities": {
+      "get": {
+        "summary": "发现 Tianshu 插件平台能力",
+        "operationId": "get_tianshu_capabilities",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tianshu/schemas/{name}": {
+      "get": {
+        "summary": "读取插件产物 JSON Schema",
+        "operationId": "get_tianshu_schemas_name",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "manifest",
+                "release",
+                "contents"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/plugins/{id}/releases/{version}": {
+      "get": {
+        "summary": "读取分区中的精确发行版本",
+        "operationId": "get_plugins_id_releases_version",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "release": {
+                      "$ref": "#/components/schemas/Plugin"
+                    }
+                  },
+                  "required": [
+                    "release"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admission_class",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "official_reviewed",
+                "paid_unreviewed"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/tianshu/compatibility": {
+      "post": {
+        "summary": "检查 Tianshu 宿主、协议与平台兼容性",
+        "operationId": "post_tianshu_compatibility",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompatibilityResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "未指定版本时，在同一准入分区优先选择最新兼容版本。仅检查公开发行的声明向量。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plugin_id": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "admission_class": {
+                    "type": "string",
+                    "enum": [
+                      "official_reviewed",
+                      "paid_unreviewed"
+                    ]
+                  },
+                  "host": {
+                    "$ref": "#/components/schemas/Host"
+                  }
+                },
+                "required": [
+                  "plugin_id",
+                  "host"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developer/profile": {
+      "get": {
+        "summary": "查询当前发布者与凭据范围",
+        "operationId": "get_developer_profile",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperProfile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "developerCi": []
+          }
+        ]
+      }
+    },
+    "/developer/plugins": {
+      "get": {
+        "summary": "列出本人插件标识",
+        "operationId": "get_developer_plugins",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plugins": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DeveloperPlugin"
+                      }
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "plugins",
+                    "next_cursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "CI 需要 releases:read。",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "developerCi": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "登记稳定插件标识",
+        "operationId": "post_developer_plugins",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plugin": {
+                      "$ref": "#/components/schemas/DeveloperPlugin"
+                    }
+                  },
+                  "required": [
+                    "plugin"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plugin": {
+                      "$ref": "#/components/schemas/DeveloperPlugin"
+                    }
+                  },
+                  "required": [
+                    "plugin"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plugin_id": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "plugin_id",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developer/plugins/{id}/releases": {
+      "get": {
+        "summary": "列出本人插件发行版本",
+        "operationId": "get_developer_plugins_id_releases",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "releases": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Submission"
+                      }
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "releases",
+                    "next_cursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "CI 需要 releases:read，列表限定到该凭据的提交分区。",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "developerCi": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/developer/releases/{id}": {
+      "get": {
+        "summary": "读取本人发行、审核意见和申请状态",
+        "operationId": "get_developer_releases_id",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "submission": {
+                      "$ref": "#/components/schemas/Submission"
+                    },
+                    "reviews": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReviewFeedback"
+                      }
+                    },
+                    "review_request": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/ReviewRequest"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "submission",
+                    "reviews",
+                    "review_request"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "CI 需要 releases:read。",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "developerCi": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/developer/packages/validate": {
+      "post": {
+        "summary": "预检 ZIP 发行包",
+        "operationId": "post_developer_packages_validate",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackageInspection"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "CI 需要 packages:validate。通过预检不会创建发行记录。",
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          },
+          {
+            "developerCi": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "admission_class",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "official_reviewed",
+                "paid_unreviewed"
+              ]
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/zip": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developer/releases/{id}/review-request": {
+      "post": {
+        "summary": "提交绑定到产物摘要的官方审核申请",
+        "operationId": "post_developer_releases_id_review_request",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "review_request": {
+                      "$ref": "#/components/schemas/ReviewRequest"
+                    }
+                  },
+                  "required": [
+                    "review_request"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "review_request": {
+                      "$ref": "#/components/schemas/ReviewRequest"
+                    }
+                  },
+                  "required": [
+                    "review_request"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "CI 需要 reviews:request。版本未批准时可提交。",
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          },
+          {
+            "developerCi": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "artifact_sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "expected_revision": {
+                    "type": "integer"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "artifact_sha256",
+                  "expected_revision",
+                  "note"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developer/releases/{id}/withdraw": {
+      "post": {
+        "summary": "撤回本人发行版本",
+        "operationId": "post_developer_releases_id_withdraw",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "submission": {
+                      "$ref": "#/components/schemas/Submission"
+                    }
+                  },
+                  "required": [
+                    "submission"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  },
+                  "expected_revision": {
+                    "type": "integer"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reason",
+                  "expected_revision",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developer/keys": {
+      "get": {
+        "summary": "查看本人 CI 凭据提示",
+        "operationId": "get_developer_keys",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "keys": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CiKey"
+                      }
+                    }
+                  },
+                  "required": [
+                    "keys"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "签发最小权限 CI 凭据",
+        "operationId": "post_developer_keys",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "$ref": "#/components/schemas/CiKey"
+                    },
+                    "credential": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "credential"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "credential 只返回一次。",
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plugin_id": {
+                    "type": "string"
+                  },
+                  "admission_class": {
+                    "type": "string",
+                    "enum": [
+                      "official_reviewed",
+                      "paid_unreviewed"
+                    ]
+                  },
+                  "scopes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "packages:validate",
+                        "releases:read",
+                        "releases:submit",
+                        "reviews:request"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 4,
+                    "uniqueItems": true
+                  },
+                  "expires_in_days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "plugin_id",
+                  "admission_class",
+                  "scopes",
+                  "expires_in_days",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developer/keys/{id}/rotate": {
+      "post": {
+        "summary": "轮换同一作用域的 CI 凭据",
+        "operationId": "post_developer_keys_id_rotate",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "$ref": "#/components/schemas/CiKey"
+                    },
+                    "credential": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "credential"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expires_in_days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "expires_in_days",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "description": "旧凭据先失效并归档。归档暂不可用时可用同一有效期重试待完成的轮换。新凭据原文仅在成功响应返回。"
+      }
+    },
+    "/developer/keys/{id}": {
+      "delete": {
+        "summary": "撤销本人 CI 凭据",
+        "operationId": "delete_developer_keys_id",
+        "responses": {
+          "204": {
+            "description": "成功"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-xpi_session"
+      },
+      "deviceBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "XSA1"
+      },
+      "publisherBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "XSPUB1"
+      },
+      "developerCi": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "XSPCI1",
+        "description": "绑定一个发布者、插件、分区和操作权限，最长 30 天。"
+      },
+      "csrfHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-XPI-CSRF"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "request_id",
+          "retryable"
+        ],
+        "additionalProperties": false
+      },
+      "Host": {
+        "type": "object",
+        "properties": {
+          "core": {
+            "type": "string"
+          },
+          "tpi": {
+            "type": "string"
+          },
+          "os": {
+            "enum": [
+              "darwin",
+              "linux",
+              "win32"
+            ]
+          },
+          "arch": {
+            "enum": [
+              "arm64",
+              "x64"
+            ]
+          }
+        },
+        "required": [
+          "core",
+          "tpi",
+          "os",
+          "arch"
+        ],
+        "additionalProperties": false
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "publisher_verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "roles",
+          "publisher_verified"
+        ],
+        "additionalProperties": false
+      },
+      "Application": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "purpose",
+          "status",
+          "reason",
+          "revision",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "Entitlement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "device_limit": {
+            "type": "integer"
+          },
+          "plugin_scope": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "activation_key_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "device_limit",
+          "plugin_scope",
+          "expires_at",
+          "revision"
+        ],
+        "additionalProperties": false
+      },
+      "Device": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "last_seen_at",
+          "revoked_at"
+        ],
+        "additionalProperties": false
+      },
+      "Challenge": {
+        "type": "object",
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "nonce",
+          "audience",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "DeviceSession": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "access_expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "refresh_expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entitlement": {
+            "type": "string"
+          },
+          "device_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "access_token",
+          "access_expires_at",
+          "refresh_token",
+          "refresh_expires_at",
+          "entitlement",
+          "device_id"
+        ],
+        "additionalProperties": false
+      },
+      "Plugin": {
+        "type": "object",
+        "properties": {
+          "plugin_id": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "channel": {
+            "const": "stable"
+          },
+          "admission_class": {
+            "type": "string",
+            "enum": [
+              "official_reviewed",
+              "paid_unreviewed"
+            ]
+          },
+          "review_status": {
+            "type": "string"
+          },
+          "qualification_basis": {
+            "type": "string"
+          },
+          "policy_revision": {
+            "type": "integer"
+          },
+          "compatibility": {
+            "type": "object",
+            "properties": {
+              "core": {
+                "type": "string"
+              },
+              "tpi": {
+                "const": "1.0"
+              },
+              "platforms": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "core",
+              "tpi",
+              "platforms"
+            ]
+          },
+          "permissions": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "description"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "release_notes": {
+            "type": "string"
+          },
+          "data_use": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "publisher_name": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "plugin_id",
+          "display_name",
+          "description",
+          "release_id",
+          "version",
+          "channel",
+          "admission_class",
+          "review_status",
+          "qualification_basis",
+          "policy_revision",
+          "compatibility",
+          "permissions",
+          "tools",
+          "published_at",
+          "release_notes",
+          "data_use",
+          "license",
+          "publisher_name",
+          "source_url"
+        ],
+        "additionalProperties": false
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "technical_status": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "requested_class": {
+            "type": "string",
+            "enum": [
+              "official_reviewed",
+              "paid_unreviewed"
+            ]
+          },
+          "admission_class": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "official_reviewed",
+                  "paid_unreviewed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_status": {
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "policy_revision": {
+            "type": "integer"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "data_use": {
+            "type": "string"
+          },
+          "release_notes": {
+            "type": "string"
+          },
+          "withdrawal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "publisher_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id",
+          "plugin_id",
+          "version",
+          "technical_status",
+          "state",
+          "requested_class",
+          "admission_class",
+          "review_status",
+          "artifact_sha256",
+          "policy_revision",
+          "source_url",
+          "license",
+          "data_use",
+          "release_notes",
+          "withdrawal_reason",
+          "publisher_id"
+        ],
+        "additionalProperties": false
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "amount_minor": {
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "term_days": {
+            "type": "integer"
+          },
+          "terms_version": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "plugin_id",
+          "release_id",
+          "status",
+          "amount_minor",
+          "currency",
+          "term_days",
+          "terms_version",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "Grant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "order_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id",
+          "plugin_id",
+          "status",
+          "expires_at",
+          "order_id"
+        ],
+        "additionalProperties": false
+      },
+      "Plan": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "channel": {
+            "const": "stable"
+          },
+          "admission_class": {
+            "type": "string",
+            "enum": [
+              "official_reviewed",
+              "paid_unreviewed"
+            ]
+          },
+          "review_status": {
+            "type": "string"
+          },
+          "qualification_basis": {
+            "type": "string"
+          },
+          "policy_revision": {
+            "type": "integer"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "artifact_bytes": {
+            "type": "integer"
+          },
+          "manifest_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "permission_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "permissions": {
+            "type": "object"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "description"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "compatibility": {
+            "type": "object",
+            "properties": {
+              "core": {
+                "type": "string"
+              },
+              "tpi": {
+                "const": "1.0"
+              },
+              "platforms": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "core",
+              "tpi",
+              "platforms"
+            ]
+          },
+          "data_schema": {
+            "const": 1
+          },
+          "data_migration": {
+            "const": "none"
+          },
+          "data_use": {
+            "type": "string"
+          },
+          "data_use_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "requires_confirmation": {
+            "type": "boolean"
+          },
+          "apply_boundary": {
+            "const": "runtime_restart"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trusted_target": {
+            "type": "string"
+          },
+          "plan_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "plan_id",
+          "plugin_id",
+          "release_id",
+          "version",
+          "channel",
+          "admission_class",
+          "review_status",
+          "qualification_basis",
+          "policy_revision",
+          "artifact_sha256",
+          "artifact_bytes",
+          "manifest_sha256",
+          "permission_digest",
+          "permissions",
+          "tools",
+          "compatibility",
+          "data_schema",
+          "data_migration",
+          "data_use",
+          "data_use_digest",
+          "requires_confirmation",
+          "apply_boundary",
+          "expires_at",
+          "trusted_target",
+          "plan_digest"
+        ],
+        "additionalProperties": false
+      },
+      "DeveloperProfile": {
+        "type": "object",
+        "properties": {
+          "publisher_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "credential": {
+            "enum": [
+              "browser",
+              "ci"
+            ]
+          },
+          "plugin_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "admission_class": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "official_reviewed",
+                  "paid_unreviewed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "packages:validate",
+                "releases:read",
+                "releases:submit",
+                "reviews:request"
+              ]
+            }
+          }
+        },
+        "required": [
+          "publisher_id",
+          "verified",
+          "credential",
+          "plugin_id",
+          "admission_class",
+          "scopes"
+        ],
+        "additionalProperties": false
+      },
+      "DeveloperPlugin": {
+        "type": "object",
+        "properties": {
+          "plugin_id": {
+            "type": "string"
+          },
+          "publisher_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "plugin_id",
+          "publisher_id",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "CiKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "admission_class": {
+            "type": "string",
+            "enum": [
+              "official_reviewed",
+              "paid_unreviewed"
+            ]
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "packages:validate",
+                "releases:read",
+                "releases:submit",
+                "reviews:request"
+              ]
+            }
+          },
+          "hint": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rotation_pending_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 30
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "plugin_id",
+          "admission_class",
+          "scopes",
+          "hint",
+          "created_at",
+          "expires_at",
+          "revoked_at",
+          "rotation_pending_days"
+        ],
+        "additionalProperties": false
+      },
+      "ReviewRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "note": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "decided",
+              "cancelled"
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "enum": [
+                  "approved",
+                  "rejected",
+                  "needs_info"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "release_id",
+          "artifact_sha256",
+          "note",
+          "status",
+          "decision",
+          "created_at",
+          "resolved_at"
+        ],
+        "additionalProperties": false
+      },
+      "ReviewFeedback": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "enum": [
+              "approved",
+              "rejected",
+              "needs_info"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "decision",
+          "reason",
+          "artifact_sha256",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "PackageInspection": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "const": true
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "manifest_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "artifact_bytes": {
+            "type": "integer"
+          },
+          "compatibility": {
+            "type": "object",
+            "properties": {
+              "core": {
+                "type": "string"
+              },
+              "tpi": {
+                "const": "1.0"
+              },
+              "platforms": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "core",
+              "tpi",
+              "platforms"
+            ]
+          }
+        },
+        "required": [
+          "valid",
+          "release_id",
+          "plugin_id",
+          "version",
+          "artifact_sha256",
+          "manifest_sha256",
+          "artifact_bytes",
+          "compatibility"
+        ],
+        "additionalProperties": false
+      },
+      "CompatibilityResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "compatible",
+              "incompatible",
+              "unavailable"
+            ]
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "release_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "admission_class": {
+            "type": "string",
+            "enum": [
+              "official_reviewed",
+              "paid_unreviewed"
+            ]
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "release_unavailable",
+                "tpi_version",
+                "core_version",
+                "platform"
+              ]
+            }
+          }
+        },
+        "required": [
+          "status",
+          "plugin_id",
+          "version",
+          "release_id",
+          "admission_class",
+          "reasons"
+        ],
+        "additionalProperties": false
+      },
+      "CloudExecution": {
+        "type": "object",
+        "properties": {
+          "execution_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "plugin_id": {
+            "const": "xiaosi-api-watch"
+          },
+          "tool": {
+            "const": "check_registered_endpoint"
+          },
+          "version": {
+            "type": "string"
+          },
+          "endpoint_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "http_status": {
+                    "type": "integer"
+                  },
+                  "ok": {
+                    "type": "boolean"
+                  },
+                  "latency_ms": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "http_status",
+                  "ok",
+                  "latency_ms"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "execution_id",
+          "state",
+          "plugin_id",
+          "tool",
+          "version",
+          "endpoint_id",
+          "created_at",
+          "finished_at",
+          "result",
+          "error_code"
+        ],
+        "additionalProperties": false
+      },
+      "CloudTools": {
+        "type": "object",
+        "properties": {
+          "plugin_id": {
+            "const": "xiaosi-api-watch"
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "const": "check_registered_endpoint"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "input_schema": {
+                  "type": "object"
+                },
+                "endpoint_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "description",
+                "input_schema",
+                "endpoint_ids"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "plugin_id",
+          "versions",
+          "tools"
+        ],
+        "additionalProperties": false
+      },
+      "OwnSubmission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "technical_status": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "requested_class": {
+            "type": "string",
+            "enum": [
+              "official_reviewed",
+              "paid_unreviewed"
+            ]
+          },
+          "admission_class": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "official_reviewed",
+                  "paid_unreviewed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_status": {
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "policy_revision": {
+            "type": "integer"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "data_use": {
+            "type": "string"
+          },
+          "release_notes": {
+            "type": "string"
+          },
+          "withdrawal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "publisher_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "review_request_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "queued",
+                  "decided",
+                  "cancelled"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "plugin_id",
+          "version",
+          "technical_status",
+          "state",
+          "requested_class",
+          "admission_class",
+          "review_status",
+          "artifact_sha256",
+          "policy_revision",
+          "source_url",
+          "license",
+          "data_use",
+          "release_notes",
+          "withdrawal_reason",
+          "publisher_id",
+          "review_request_status"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Tianshu 插件开发者手册",
+    "url": "https://xiaosiai.cn/docs/developers"
+  }
+}

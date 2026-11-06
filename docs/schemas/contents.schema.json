@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{"schema":{"type":"string","const":"xiaosi.contents/1"},"files":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{"type":"string","pattern":"^[0-9a-f]{64}$"}}},"required":["schema","files"],"additionalProperties":false,"title":"XPI content hash manifest"}
