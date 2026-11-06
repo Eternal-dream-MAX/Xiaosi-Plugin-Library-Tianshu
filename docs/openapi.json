@@ -3789,6 +3789,241 @@
           }
         }
       }
+    },
+    "/developer/intake": {
+      "get": {
+        "summary": "读取本账号待核验的首份 ZIP",
+        "operationId": "get_developer_intake",
+        "responses": {
+          "200": {
+            "description": "当前首份发行包或空值",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "draft": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/IntakeDraft"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "draft"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "上传待核验的首份 ZIP",
+        "operationId": "post_developer_intake",
+        "description": "未核验的浏览器账户可上传一份通过基础检测的 ZIP。记录保留 14 天，发布者核验通过后转为待处理发行。相同 ZIP 和资料重试返回原记录。",
+        "responses": {
+          "200": {
+            "description": "原待核验记录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "draft": {
+                      "$ref": "#/components/schemas/IntakeDraft"
+                    }
+                  },
+                  "required": [
+                    "draft"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "已接收，待核验",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "draft": {
+                      "$ref": "#/components/schemas/IntakeDraft"
+                    }
+                  },
+                  "required": [
+                    "draft"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "admission_class",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "official_reviewed",
+                "paid_unreviewed"
+              ]
+            }
+          },
+          {
+            "name": "license",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "data_use",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source_url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "release_notes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/zip": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "取消本账号待核验的首份 ZIP",
+        "operationId": "delete_developer_intake",
+        "responses": {
+          "204": {
+            "description": "取消成功或该账号没有待核验记录"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "browserSession": [],
+            "csrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "intake_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -5187,6 +5422,50 @@
           "withdrawal_reason",
           "publisher_id",
           "review_request_status"
+        ],
+        "additionalProperties": false
+      },
+      "IntakeDraft": {
+        "type": "object",
+        "properties": {
+          "intake_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "description": "发行 ID"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "admission_class": {
+            "type": "string",
+            "enum": [
+              "official_reviewed",
+              "paid_unreviewed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "intake_id",
+          "id",
+          "plugin_id",
+          "version",
+          "artifact_sha256",
+          "admission_class",
+          "created_at"
         ],
         "additionalProperties": false
       }

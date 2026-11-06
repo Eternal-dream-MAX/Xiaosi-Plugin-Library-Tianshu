@@ -44,6 +44,20 @@ curl -fsS "$XPI_ORIGIN/api/v1/tianshu/compatibility" \
 
 `GET /developer/profile` 返回 `publisher_id`、核验状态、凭据类型、插件、准入分区与 scopes。浏览器资料中的插件和分区为 `null`。CI 的记录范围按提交时选定的 `requested_class` 隔离。CI 无法付款、执行官方审批、签名、撤回或使用宿主设备权限。
 
+## 首份插件上传
+
+尚未核验发布者身份的账号可从[上传插件](https://xiaosiai.cn/developers/upload)提交一份待核验 ZIP，保留 14 天。以下接口使用浏览器会话 Cookie。上传和取消需要同源 `Origin` 以及 `GET /auth/session` 返回的 `csrf`，通过 `X-XPI-CSRF` 请求头传入。CI 凭据适用于发布者核验后的提交流程。
+
+| 方法与路径（相对 `/api/v1`） | 请求与结果 |
+| --- | --- |
+| `POST /developer/intake` | 查询参数为 `admission_class`、`license`、`data_use`、`source_url` 和 `release_notes`。以 `Content-Type: application/zip` 上传原始 ZIP 字节，上限 20 MiB。清单对应的发行记录中，`publisher_id` 须与当前账号一致。新建返回 HTTP 201，待核验期间用同一 ZIP 和相同资料重试返回 HTTP 200。两种响应均为 `{draft}`。 |
+| `GET /developer/intake` | 返回 HTTP 200，正文为 `{draft}`。当前没有待核验包时，`draft` 为 `null`。 |
+| `DELETE /developer/intake?intake_id=<UUID>` | 使用查询结果中的 `draft.intake_id` 取消对应提交。取消成功或没有待核验包时返回 HTTP 204。记录已更换时返回 HTTP 409，先重新查询。 |
+
+五个查询参数均为必填。`admission_class` 取 `official_reviewed` 或 `paid_unreviewed`，`source_url` 使用不带账号凭据的 HTTPS 地址。已有待核验提交时，上传不同的包或资料会返回 HTTP 409。更换前先查询并取消原提交。ZIP 格式、内容摘要或运行约束检测失败时返回 HTTP 422。[打包发布与更新](publishing.md)
+
+`draft` 包含 `intake_id`、发行 ID `id`、`plugin_id`、`version`、`artifact_sha256`、`admission_class` 和 `created_at`。发布者核验通过后，原包转入「已提交版本」。免费通道的版本可继续申请官方审核，后续版本通过 `POST /submissions` 提交。
+
 ## CI 示例
 
 先按[快速开始](quickstart.md)生成 ZIP。沿用上文的 `XPI_ORIGIN`，或将其设为目标环境的 HTTPS 源，不带末尾斜线和路径。由流水线的机密变量设置 `XPI_PUBLISHER_TOKEN`。以下示例使用官方分区的凭据和 curl 7.87.0 或更新版本。验包以 `Content-Type: application/zip` 上传原始文件字节。

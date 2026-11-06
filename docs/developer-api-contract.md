@@ -9,6 +9,9 @@
 | GET /plugins/:id/releases/:version | query admission_class，返回 {release}，默认官方 | 公开 |
 | POST /tianshu/compatibility | {plugin_id, version?, admission_class?, host:{core,tpi,os,arch}} → {status,plugin_id,version,release_id,admission_class,reasons} | 公开 |
 | GET /developer/profile | {publisher_id,verified,credential,plugin_id,admission_class,scopes}，浏览器的插件和分区为 null | Browser 或 CI |
+| GET /developer/intake | 返回 `{draft}`。无待核验包时为 `{draft:null}`。 | Browser |
+| POST /developer/intake | 沿用 `/submissions` 的查询参数和原始 ZIP 请求体。新建返回 201，同包与同资料重试返回 200，正文为 `{draft}`。 | 未核验 Browser，写请求需 CSRF |
+| DELETE /developer/intake | query `intake_id`，取消该待核验提交，成功返回 204。 | Browser，写请求需 CSRF |
 | GET /developer/plugins | query cursor,limit → {plugins:[{plugin_id,publisher_id,created_at}],next_cursor} | Browser 或 CI releases:read |
 | POST /developer/plugins | {plugin_id,password} → {plugin} | 已核验 Browser |
 | GET /developer/plugins/:id/releases | query cursor,limit → {releases:[Submission],next_cursor} | Browser 或 CI releases:read |

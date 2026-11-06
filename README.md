@@ -4,13 +4,14 @@
 
 ## 开发第一个插件
 
-从[快速开始](docs/developers/quickstart.md)创建插件，在兼容的天枢宿主中安装测试。准备发行时，按[打包发布与更新](docs/developers/publishing.md)生成 ZIP，再通过开发者中心提交，或通过 [HTTP API](docs/developers/api.md) 接入 CI。
+从[快速开始](docs/developers/quickstart.md)创建插件，在兼容的天枢宿主中安装测试。准备发行时，按[打包发布与更新](docs/developers/publishing.md)生成 ZIP，从上传入口提交首份插件。发布者核验通过后，可通过开发者中心或 [CI 接口](docs/developers/api.md#ci-示例)提交后续版本。
 
 | 文档 | 内容 |
 | --- | --- |
 | [开发文档目录](docs/developers/README.md) | 七章在线指南，覆盖清单、运行时、发行、CI 和宿主安全。 |
 | [开发者手册 PDF](docs/downloads/Xiaosi插件库开发者手册.pdf) · [Word](docs/downloads/Tianshu插件开发者手册.docx) | 可离线阅读的完整手册。 |
-| [开发者中心](https://xiaosiai.cn/developers/authorization) | 核验发布者、登记插件 ID、管理版本和签发 CI 凭据。 |
+| [上传插件](https://xiaosiai.cn/developers/upload) | 提交首份 ZIP 等待发布者核验。已核验开发者可提交后续版本。[上传接口](docs/developers/api.md#首份插件上传) |
+| [开发者中心](https://xiaosiai.cn/developers/authorization) | 管理版本、申请官方审核和签发 CI 凭据。 |
 
 ## 接口与包格式
 
