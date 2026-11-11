@@ -1,5 +1,7 @@
 # TPI SDK 与运行时
 
+本页描述 TPI 1.0；TPI 2.0 的隔离宿主和异步能力接口见 [TPI 2.0 开发指南](tpi2.md)与[类型声明](../../tpi/tpi-v2.d.mts)。两者的宿主对象不能互换。
+
 ## 入口和会话
 
 宿主先安装只读的 `globalThis.__tianshuTPI`，随后加载插件入口。保存下面的模块为 `tpi.mjs`，并可在同一目录放入 [TPI 类型声明](../../tpi/tpi.d.mts)。

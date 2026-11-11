@@ -1,6 +1,6 @@
 # 清单与兼容性
 
-插件根目录必须包含 UTF-8 文件 `tianshu.plugin.json`。宿主读取此清单并校验入口握手。插件库同时验证清单、发行记录和内容摘要表。此页描述插件库首期可发行的范围。[清单 JSON Schema](../schemas/manifest.schema.json)
+插件根目录必须包含 UTF-8 文件 `tianshu.plugin.json`。宿主读取此清单并校验入口握手。插件库同时验证清单、发行记录和内容摘要表。此页描述 TPI 1.0 清单；需要联网、文件、命令或界面能力的插件见 [TPI 2.0](tpi2.md)。[清单 JSON Schema](../schemas/manifest.schema.json)
 
 ## 一个最小工具插件
 
