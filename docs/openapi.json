@@ -1191,6 +1191,11 @@
                     "expires_at": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "download_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Optional. A short-lived signed object-storage URL for a large package. The host verifies the bytes against the signed plan and falls back to download_path if this download fails."
                     }
                   },
                   "required": [
@@ -4024,6 +4029,1843 @@
           }
         ]
       }
+    },
+    "/developer/intake/returns": {
+      "get": {
+        "summary": "读取本账号首份发行包退回记录",
+        "operationId": "get_developer_intake_returns",
+        "description": "按当前登录账号匹配提交和退回审计事件，按最新退回顺序分页。",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "before_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,17}$"
+            },
+            "description": "上一页返回的 next_cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "本账号退回记录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "returns": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/IntakeReturn"
+                      }
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "returns",
+                    "next_cursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugin-authorizations/session": {
+      "post": {
+        "summary": "建立关联设备的前台会话",
+        "description": "需要一次性 device 挑战和设备签名，设备、账号关联和安全记录须有效；不使用浏览器会话。",
+        "operationId": "post_plugin_authorizations_session",
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{86}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "device_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "device_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceSession"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugin-authorizations/background-session": {
+      "post": {
+        "summary": "建立范围受限的后台设备会话",
+        "description": "需要一次性 device 挑战和设备签名，设备、账号关联和安全记录须有效；不使用浏览器会话。",
+        "operationId": "post_plugin_authorizations_background_session",
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{86}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "device_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "device_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceSession"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugin-authorizations/acquire": {
+      "post": {
+        "summary": "签发经审核插件授权",
+        "description": "需要一次性 device 挑战和设备签名，设备、账号关联和安全记录须有效；不使用浏览器会话。",
+        "operationId": "post_plugin_authorizations_acquire",
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{86}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "device_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "plugin_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{2,63}$"
+                  },
+                  "release_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{8,80}$"
+                  },
+                  "artifact_sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "device_id",
+                  "plugin_id",
+                  "release_id",
+                  "artifact_sha256"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grant": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "grant"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugin-authorizations/migrate": {
+      "post": {
+        "summary": "低优先级迁移旧安装的插件授权",
+        "description": "需要一次性 device 挑战和设备签名，设备、账号关联和安全记录须有效；不使用浏览器会话。",
+        "operationId": "post_plugin_authorizations_migrate",
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{86}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "device_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "plugin_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{2,63}$"
+                  },
+                  "release_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{8,80}$"
+                  },
+                  "artifact_sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "device_id",
+                  "plugin_id",
+                  "release_id",
+                  "artifact_sha256"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grant": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "grant"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugin-authorizations/renew": {
+      "post": {
+        "summary": "批量续期插件授权",
+        "description": "需要一次性 device 挑战和设备签名，设备、账号关联和安全记录须有效；不使用浏览器会话。",
+        "operationId": "post_plugin_authorizations_renew",
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{86}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "device_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "installed": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "plugin_id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{2,63}$"
+                        },
+                        "release_id": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{8,80}$"
+                        },
+                        "artifact_sha256": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        }
+                      },
+                      "required": [
+                        "plugin_id",
+                        "release_id",
+                        "artifact_sha256"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "每个 plugin_id 只能出现一次。"
+                  }
+                },
+                "required": [
+                  "device_id",
+                  "installed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "plugin_id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9-]{2,63}$"
+                              },
+                              "release_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_-]{8,80}$"
+                              },
+                              "status": {
+                                "const": "active"
+                              },
+                              "grant": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "plugin_id",
+                              "release_id",
+                              "status",
+                              "grant"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "plugin_id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9-]{2,63}$"
+                              },
+                              "release_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_-]{8,80}$"
+                              },
+                              "status": {
+                                "const": "revoked"
+                              },
+                              "reason": {
+                                "enum": [
+                                  "authorization_revoked",
+                                  "release_withdrawn"
+                                ]
+                              },
+                              "authority_revision": {
+                                "type": "integer"
+                              },
+                              "plugin_revision": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "plugin_id",
+                              "release_id",
+                              "status",
+                              "reason",
+                              "authority_revision",
+                              "plugin_revision"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "results"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/plugin-authorizations": {
+      "get": {
+        "summary": "分页查看当前账号插件授权",
+        "operationId": "get_me_plugin_authorizations",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{2,63}$"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回 authorizations 数组和 next_after 游标。"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/plugin-authorizations/{pluginId}/revoke": {
+      "post": {
+        "summary": "撤销当前账号插件授权",
+        "operationId": "post_me_plugin_authorizations_revoke",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pluginId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{2,63}$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "成功"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/plugin-authorizations/{pluginId}/restore": {
+      "post": {
+        "summary": "恢复当前账号插件授权",
+        "operationId": "post_me_plugin_authorizations_restore",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pluginId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{2,63}$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "成功"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/tianshu-link": {
+      "get": {
+        "summary": "查看当前账号是否关联天枢",
+        "operationId": "get_me_tianshu_link",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "linked": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "linked"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/tianshu-link/start": {
+      "post": {
+        "summary": "发起关联天枢账号",
+        "operationId": "post_me_tianshu_link_start",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authorize_url": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "authorize_url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/tianshu-link/unlink": {
+      "post": {
+        "summary": "解除天枢账号关联",
+        "operationId": "post_me_tianshu_link_unlink",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-CSRF",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "成功"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/tianshu/start": {
+      "post": {
+        "summary": "发起天枢一键登录",
+        "operationId": "post_auth_tianshu_start",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "next": {
+                    "enum": [
+                      "/console",
+                      "/developers/authorization",
+                      "/admin"
+                    ]
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authorize_url": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "authorize_url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/tianshu/finish": {
+      "post": {
+        "summary": "完成天枢一键登录或选择关联已有账号",
+        "description": "必须使用发起流程的浏览器交接 cookie；首次登录可选择关联已有账号或创建新账号。",
+        "operationId": "post_auth_tianshu_finish",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$"
+                  },
+                  "action": {
+                    "enum": [
+                      "link",
+                      "create"
+                    ]
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "state"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "返回 choose_account、password_required 或已登录用户和 CSRF。"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/tianshu/callback": {
+      "get": {
+        "summary": "天枢授权回调",
+        "description": "仅供原浏览器的授权流程跳转；状态和授权码一次性使用。",
+        "operationId": "get_auth_tianshu_callback",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$"
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "继续登录或关联"
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "服务就绪状态",
+        "operationId": "get_health",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "ok",
+                        "recovery"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/background/auth/challenges": {
+      "post": {
+        "summary": "后台：申请单次设备挑战",
+        "operationId": "post_background_auth_challenges",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Challenge"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "purpose": {
+                    "enum": [
+                      "activate",
+                      "refresh",
+                      "device"
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "purpose",
+                  "public_key"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "description": "后台低优先级的单次设备挑战；与前台请求共用挑战容量保护。"
+      }
+    },
+    "/background/install-plans": {
+      "post": {
+        "summary": "后台：创建绑定精确版本的安装计划",
+        "operationId": "post_background_install_plans",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plugin_id": {
+                    "type": "string"
+                  },
+                  "channel": {
+                    "const": "stable"
+                  },
+                  "admission_class": {
+                    "const": "official_reviewed"
+                  },
+                  "installed_version": {
+                    "type": "string"
+                  },
+                  "host": {
+                    "$ref": "#/components/schemas/Host"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "plugin_id",
+                  "channel",
+                  "installed_version",
+                  "host"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "description": "后台低优先级接口；使用单独的设备证明挑战和受限后台会话。仅允许已安装的官方审核插件自动更新，不能用于前台操作。"
+      }
+    },
+    "/background/download-tickets": {
+      "post": {
+        "summary": "后台：确认计划并签发下载票据",
+        "operationId": "post_background_download_tickets",
+        "responses": {
+          "201": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ticket": {
+                      "type": "string"
+                    },
+                    "download_path": {
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "download_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Optional. A short-lived signed object-storage URL for a large package. The host verifies the bytes against the signed plan and falls back to download_path if this download fails."
+                    }
+                  },
+                  "required": [
+                    "ticket",
+                    "download_path",
+                    "expires_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plan_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "plan_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "confirmed": {
+                    "const": true
+                  },
+                  "paid_confirmed": {
+                    "type": "boolean"
+                  },
+                  "automatic": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "plan_id",
+                  "plan_digest",
+                  "confirmed",
+                  "automatic"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "description": "后台低优先级接口；使用单独的设备证明挑战和受限后台会话。仅允许已安装的官方审核插件自动更新，不能用于前台操作。"
+      }
+    },
+    "/background/downloads/{id}": {
+      "get": {
+        "summary": "后台：下载该设备已确认的包",
+        "operationId": "get_background_downloads_id",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Download-Ticket",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "后台低优先级接口；使用单独的设备证明挑战和受限后台会话。仅允许已安装的官方审核插件自动更新，不能用于前台操作。"
+      }
+    },
+    "/background/updates/check": {
+      "post": {
+        "summary": "后台：按分区批量核验与检查更新",
+        "operationId": "post_background_updates_check",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "updates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "plugin_id": {
+                            "type": "string"
+                          },
+                          "admission_class": {
+                            "type": "string",
+                            "enum": [
+                              "official_reviewed",
+                              "paid_unreviewed"
+                            ]
+                          },
+                          "status": {
+                            "enum": [
+                              "current",
+                              "update",
+                              "revoked",
+                              "unavailable"
+                            ]
+                          },
+                          "version": {
+                            "type": "string"
+                          },
+                          "release_id": {
+                            "type": "string"
+                          },
+                          "requires_confirmation": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "plugin_id",
+                          "admission_class",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "updates"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "XPI 业务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "授权服务过载或安全记录暂不可用；过载时遵守 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "description": "仅在服务过载时提供，单位秒。",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "deviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-XPI-Challenge",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XPI-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "host": {
+                    "$ref": "#/components/schemas/Host"
+                  },
+                  "installed": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "plugin_id": {
+                          "type": "string"
+                        },
+                        "channel": {
+                          "const": "stable"
+                        },
+                        "admission_class": {
+                          "const": "official_reviewed"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "release_id": {
+                          "type": "string"
+                        },
+                        "pinned_version": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "plugin_id",
+                        "channel",
+                        "admission_class",
+                        "version",
+                        "release_id"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "host",
+                  "installed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "description": "后台低优先级接口；使用单独的设备证明挑战和受限后台会话。仅允许已安装的官方审核插件自动更新，不能用于前台操作。"
+      }
     }
   },
   "components": {
@@ -5465,6 +7307,32 @@
           "version",
           "artifact_sha256",
           "admission_class",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "IntakeReturn": {
+        "type": "object",
+        "properties": {
+          "release_id": {
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "release_id",
+          "artifact_sha256",
+          "reason",
           "created_at"
         ],
         "additionalProperties": false

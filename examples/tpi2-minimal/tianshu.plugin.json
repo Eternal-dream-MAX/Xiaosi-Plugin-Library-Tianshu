@@ -1,0 +1,15 @@
+{
+  "$tpi": "2.0",
+  "kind": "tianshu.plugin",
+  "id": "example-text-count",
+  "displayName": "文字计数示例",
+  "version": "1.0.0",
+  "description": "统计输入文字的 Unicode 码点数量。",
+  "entry": "index.mjs",
+  "engines": { "tianshu": ">=4.0.5 <5.0.0" },
+  "capabilities": ["tools"],
+  "permissions": {},
+  "contributes": {
+    "tools": [{ "name": "example_count_text", "description": "统计输入文字的 Unicode 码点数量。" }]
+  }
+}

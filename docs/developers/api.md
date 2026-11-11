@@ -9,7 +9,7 @@
 | 方法与路径（相对 `/api/v1`） | 用途 |
 | --- | --- |
 | `GET /tianshu/capabilities` | 查协议、发行限制、启用的服务和契约链接。 |
-| `GET /tianshu/schemas/:name` | 下载 `manifest`、`release` 或 `contents` 的 JSON Schema。 |
+| `GET /tianshu/schemas/:name` | 下载 1.0 清单 `manifest`、2.0 清单 `manifest-v2`、`release` 或 `contents` 的 JSON Schema。 |
 | `GET /plugins/:id/releases/:version` | 查指定分区公开的精确版本，返回 `{release}`。查询参数 `admission_class` 默认 `official_reviewed`。 |
 | `POST /tianshu/compatibility` | 比较已发布版本与指定宿主。省略 `version` 时优先返回分区中最新的兼容公开版本，全部不兼容时返回最新版本及原因。 |
 
@@ -50,7 +50,7 @@ curl -fsS "$XPI_ORIGIN/api/v1/tianshu/compatibility" \
 
 | 方法与路径（相对 `/api/v1`） | 请求与结果 |
 | --- | --- |
-| `POST /developer/intake` | 查询参数为 `admission_class`、`license`、`data_use`、`source_url` 和 `release_notes`。以 `Content-Type: application/zip` 上传原始 ZIP 字节，上限 20 MiB。清单对应的发行记录中，`publisher_id` 须与当前账号一致。新建返回 HTTP 201，待核验期间用同一 ZIP 和相同资料重试返回 HTTP 200。两种响应均为 `{draft}`。 |
+| `POST /developer/intake` | 查询参数为 `admission_class`、`license`、`data_use`、`source_url` 和 `release_notes`。以 `Content-Type: application/zip` 上传原始 ZIP 字节；首份包上限以能力接口的 `limits.first_upload_bytes` 为准。清单对应的发行记录中，`publisher_id` 须与当前账号一致。新建返回 HTTP 201，待核验期间用同一 ZIP 和相同资料重试返回 HTTP 200。两种响应均为 `{draft}`。 |
 | `GET /developer/intake` | 返回 HTTP 200，正文为 `{draft}`。当前没有待核验包时，`draft` 为 `null`。 |
 | `DELETE /developer/intake?intake_id=<UUID>` | 使用查询结果中的 `draft.intake_id` 取消对应提交。取消成功或没有待核验包时返回 HTTP 204。记录已更换时返回 HTTP 409，先重新查询。 |
 
